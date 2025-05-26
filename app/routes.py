@@ -88,7 +88,6 @@ async def get_movie_by_id(request: web.Request) -> web.Response:
 async def get_movies(request: web.Request) -> web.Response:
     conn: Connection = request.app["db"]
 
-    # Query params
     genre = request.query.get("genre")
     min_rating = request.query.get("rating")
     sort_by_fields = request.query.get("sort_by", "title").split(",")
@@ -97,7 +96,6 @@ async def get_movies(request: web.Request) -> web.Response:
     limit = int(request.query.get("limit", 50))
     offset = int(request.query.get("offset", 0))
 
-    # Validaciones
     allowed_sorts = {"title", "year", "rating"}
     allowed_order = {"asc", "desc"}
 
@@ -105,7 +103,7 @@ async def get_movies(request: web.Request) -> web.Response:
         return web.json_response({"error": "Invalid sort_by field"}, status=400)
 
     while len(order_fields) < len(sort_by_fields):
-        order_fields.append("asc")  # Rellenar con asc por defecto
+        order_fields.append("asc")  
 
     if not all(direction in allowed_order for direction in order_fields):
         return web.json_response({"error": "Invalid order value"}, status=400)
@@ -113,7 +111,6 @@ async def get_movies(request: web.Request) -> web.Response:
     if limit < 1 or limit > 200:
         return web.json_response({"error": "Limit must be between 1 and 200"}, status=400)
 
-    # Construcción dinámica de SQL
     sql = """
         SELECT
             m.tconst,
@@ -139,7 +136,6 @@ async def get_movies(request: web.Request) -> web.Response:
         params.append(float(min_rating))
         param_index += 1
 
-    # ORDER BY
     column_map = {
         "title": "m.primary_title",
         "year": "m.start_year",
@@ -152,11 +148,9 @@ async def get_movies(request: web.Request) -> web.Response:
 
     sql += f" ORDER BY {', '.join(order_clauses)}"
 
-    # Paginación
     sql += f" LIMIT ${param_index} OFFSET ${param_index + 1}"
     params.extend([limit, offset])
 
-    # Ejecutar
     rows = await conn.fetch(sql, *params)
 
     result = [

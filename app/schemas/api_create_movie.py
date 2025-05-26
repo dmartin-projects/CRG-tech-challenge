@@ -1,4 +1,3 @@
-# schemas/api_request_movie.py
 from pydantic import BaseModel, constr, conint, confloat
 
 class MovieCreateRequest(BaseModel):

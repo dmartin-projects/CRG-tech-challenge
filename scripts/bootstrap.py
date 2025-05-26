@@ -28,7 +28,6 @@ RATINGS_TABLE = "rating_movies"
 
 
 async def ensure_tables(conn):
-    # Crear tablas si no existen
     await conn.execute(f"""
         CREATE TABLE IF NOT EXISTS {MOVIES_TABLE} (
             tconst TEXT PRIMARY KEY,
@@ -62,14 +61,14 @@ async def download_and_extract(name, url):
     tsv_path = os.path.join(DATA_DIR, f"{name}.tsv")
 
     if not os.path.exists(gz_path):
-        print(f"⬇️  Descargando {name}...")
+        print(f"Descargando {name}...")
         async with aiohttp.ClientSession() as session:
             async with session.get(url) as resp:
                 with open(gz_path, "wb") as f:
                     f.write(await resp.read())
 
     if not os.path.exists(tsv_path):
-        print(f"📦 Descomprimiendo {gz_path}")
+        print(f"Descomprimiendo {gz_path}")
         with gzip.open(gz_path, "rb") as f_in, open(tsv_path, "wb") as f_out:
             shutil.copyfileobj(f_in, f_out)
 
@@ -106,10 +105,10 @@ async def load_data(pool):
         has_ratings = await table_has_data(conn, RATINGS_TABLE)
 
         if has_movies and has_ratings:
-            print("✅ Las tablas ya tienen datos. Nada que hacer.")
+            print("Las tablas ya tienen datos. Nada que hacer.")
             return
 
-        print("⚠️  Las tablas están vacías. Cargando datos...")
+        print("Las tablas están vacías. Cargando datos...")
 
         movies_path = await download_and_extract("movies", URLS["movies"])
         ratings_path = await download_and_extract("ratings", URLS["ratings"])
@@ -120,7 +119,6 @@ async def load_data(pool):
         movies_df = clean_movies(movies_df)
         ratings_df = clean_ratings(ratings_df)
 
-        # Inserción en BBDD
         async with conn.transaction():
             await conn.executemany(
                 f"""INSERT INTO {MOVIES_TABLE} 
