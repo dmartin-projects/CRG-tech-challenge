@@ -11,5 +11,5 @@ class MovieResponse(BaseModel):
 
     @computed_field
     @property
-    def imdb_link(self) -> HttpUrl:
+    def imdb_link(self) -> str:
         return f"https://www.imdb.com/title/{self.tconst}/"
