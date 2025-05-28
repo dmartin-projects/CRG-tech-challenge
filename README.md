@@ -46,7 +46,7 @@ This will:
 - Start PostgreSQL in a container
 - Wait for the database to be ready
 - Download and load the IMDb data into the database (if empty)
-- Launch the aiohttp server on `http://localhost:8080`
+- Launch the aiohttp server on `http://localhost:8181`
 
 ## API Endpoints
 
